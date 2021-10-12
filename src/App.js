@@ -2,7 +2,7 @@ import puppeteer from "puppeteer";
 import * as dappeteer from "@dasanra/dappeteer";
 
 const ACCOUNT_NUMBER = 1000;
-const PASSWORD = "1";
+const PASSWORD = "!";
 const arrPk = [
   
 ];
@@ -223,7 +223,7 @@ async function autoClaim(browser, metamaskPage, i) {
       ".bn-onboard-custom.bn-onboard-icon-button.svelte-1799bj2.bn-onboard-selected-wallet"
     );
     await metaBtn.click();
-    await sleep(2000);
+    await sleep(4000);
 
     // Check claim
     const isClaimable = await page.evaluate(() => {
@@ -252,14 +252,20 @@ async function autoClaim(browser, metamaskPage, i) {
     // log out
   } catch (e) {
     console.log(e);
-    await sleep(50000);
+    await sleep(5000);
   }
   await page.close();
 }
 async function init() {
-  const browser = await dappeteer.launch(puppeteer, { userDataDir: "./data" });
-  const metamask = await dappeteer.getMetamask(browser);
-  await sleep(11001010101);
+  try {
+    const browser = await dappeteer.launch(puppeteer, { userDataDir: "./data" });
+    const metamask = await dappeteer.getMetamask(browser);
+    await changeNetWork(metamask, 'Polygon', '137', 'https://polygon-rpc.com');
+    await sleep(11001010101);
+  } catch(e){
+    await sleep(11001010101);
+  }
+ 
 }
 async function importPK(metamaskPage, pk) {
   try {
@@ -287,31 +293,32 @@ async function main(type) {
     await createNewAccount(metamask, ACCOUNT_NUMBER);
     await sleep(1000);
     // await changeNetWork(metamask, 'Polygon', '137', 'https://polygon-rpc.com');
-    const page = await browser.newPage();
-    await page.goto("https://zapper.fi/quests");
-    await connectAllAccount(metamask);
+    // const page = await browser.newPage();
+    // await page.goto("https://zapper.fi/quests");
+    // await connectAllAccount(metamask);
   } else if (type == 2) {
     await sleep(1000);
     for (let i = 0; i < arrPk.length; i++) {
       await importPK(metamask, arrPk[i]);
     }
-    const page = await browser.newPage();
+    // const page = await browser.newPage();
     // await changeNetWork(metamask, 'Polygon', '137', 'https://polygon-rpc.com');
-    await page.goto("https://zapper.fi/quests");
-    await connectAllAccount(metamask);
+    // await page.goto("https://zapper.fi/quests");
+    // await connectAllAccount(metamask);
   } else {
-    for (let i = 10; i < ACCOUNT_NUMBER; i++) {
+    // await changeNetWork(metamask, 'Polygon', '137', 'https://polygon-rpc.com');
+    for (let i = 1; i < ACCOUNT_NUMBER; i++) {
       await autoClaim(browser, metamask, i);
     }
   }
 }
 
-const type = 2;
+const type = 3;
 // 1 : auto create acc
 // 2 : auto import by pk
 // 3: run claim
-init();
-// main(type).catch((e) => {
-//   console.log(e);
-//   sleep(10000);
-// });
+// init();
+main(type).catch((e) => {
+  console.log(e);
+  sleep(100000);
+});
